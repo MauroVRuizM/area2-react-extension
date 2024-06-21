@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { auth } from '../firebase/config';
 import { Popup } from '../components/Popup';
 import { Login } from '../components/Login';
 
@@ -17,10 +16,13 @@ export const HomePage = () => {
   }, [canAccess]);
 
   const checkToken = async() => {
-    const token = await auth.currentUser?.getIdToken();
+    const { token } = await chrome.storage.session.get('token');
+    console.log(token);
     if(token) {
       setCanAccess(true);
+      return;
     }
+    setCanAccess(false);
   }
 
   const getLastLog = () => {
@@ -40,10 +42,10 @@ export const HomePage = () => {
       {
         canAccess
         ? (
-          <Popup message={preMsg}/>
+          <Popup message={preMsg} checkToken={checkToken}/>
         )
         : (
-          <Login/>
+          <Login checkToken={checkToken}/>
         )
       }
     </>

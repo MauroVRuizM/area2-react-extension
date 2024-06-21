@@ -1,13 +1,21 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 import { Container, Typography, TextField, Button, Box } from "@mui/material";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, AuthError } from 'firebase/auth';
+import { auth } from "../firebase/config";
 
-export const Login = () => {
+interface Props {
+    checkToken: () => Promise<void>;
+}
+
+export const Login: FC<Props> = ({ checkToken }) => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [submitTouched, setSubmitTouched] = useState(false);
+    const [firebaseError, setFirebaseError] = useState('');
+    const [isRegistering, setIsRegistering] = useState(false);
 
     const validateEmail = (email: string) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,8 +23,9 @@ export const Login = () => {
     };
 
     const validatePassword = (password: string) => {
-        if (password === "") {return false;}
-        return true;
+        if (password === "") {return {isValid: false, msg: "Please enter your password."}}
+        if (password.length < 6) {return {isValid: false, msg: "Password must be at least 6 characters long."}}
+        return {isValid: true, msg: ""};
     }
 
     const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -32,8 +41,9 @@ export const Login = () => {
     const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
         if(!submitTouched) {return;}
-        if (!validatePassword(e.target.value)) {
-            setPasswordError('Please enter your password.');
+        const { isValid, msg } = validatePassword(e.target.value);
+        if (!isValid) {
+            setPasswordError(msg);
             return;
         }
         setPasswordError('');
@@ -42,28 +52,66 @@ export const Login = () => {
     const clearErrors = () => {
         setEmailError('');
         setPasswordError('');
+        setFirebaseError('');
     }
 
-    const handleSignIn = () => {
+    const handleChangeMode = () => {
+        setIsRegistering(!isRegistering);
+        clearErrors();
+    }
+
+    const saveToken = async (token: string) => {
+        await chrome.storage.session.set({ token });
+        checkToken();
+    }
+
+    const handleSubmit = async () => {
         if(!submitTouched) {setSubmitTouched(true)}
         if (!validateEmail(email)) {
             setEmailError('Please enter a valid email address.');
             return;
         }
 
-        if (!validatePassword(password)) {
-            setPasswordError('Please enter your password.');
+        const { isValid, msg } = validatePassword(password);
+
+        if (!isValid) {
+            setPasswordError(msg);
             return;
         }
 
         clearErrors();
+
+        let errorMsg = '';
+
+        // * On Register
+        if (isRegistering) {
+            try {
+                const { user } = await createUserWithEmailAndPassword(auth, email, password);
+                const token = await user.getIdToken();
+                saveToken(token);
+            } catch (_) {
+                errorMsg = "This e-mail is already registered";
+            }
+            setFirebaseError(errorMsg);
+            return;
+        }
+
+        // * On Login
+        try {
+            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            const token = await user.getIdToken();
+            saveToken(token);
+        } catch (_) {
+            errorMsg = "Invalid e-mail or password";
+        }
+        setFirebaseError(errorMsg);
     };
 
     return (
         <Container maxWidth="xs">
             <Box textAlign="center" mt={4}>
                 <Typography variant="h4">
-                    Sign In to continue
+                    { isRegistering ? "Sign Up" : "Sign In to continue" }
                 </Typography>
             </Box>
 
@@ -98,20 +146,26 @@ export const Login = () => {
                 />
             </Box>
             <Box mt={4} textAlign="center">
-                <Button variant="contained" color="primary" onClick={handleSignIn}>
-                    Sign In
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    { isRegistering ? "Sign Up" : "Sign In" }
                 </Button>
+            </Box>
+
+            <Box mt={2} textAlign="center">
+                <Typography color="error">
+                    { firebaseError }
+                </Typography>
             </Box>
 
             <Box textAlign="center" mt={4}>
                 <Typography variant="h5">
-                    Don't have an account?
+                    { isRegistering ? "I already have an account" : "Don't have an account?" }
                 </Typography>
             </Box>
 
             <Box mt={2} textAlign="center">
-                <Button variant="outlined" color="secondary" id="signUp">
-                    Sign Up
+                <Button variant="outlined" color="secondary" onClick={handleChangeMode}>
+                    { isRegistering ? "Sign In" : "Sign Up" }
                 </Button>
             </Box>
         </Container>

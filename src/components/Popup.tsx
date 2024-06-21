@@ -1,11 +1,21 @@
-import { Container, Button, Typography, Box, Paper } from '@mui/material';
 import { FC } from 'react';
+import { Container, Button, Typography, Box, Paper } from '@mui/material';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
 interface Props {
     message: string;
+    checkToken: () => Promise<void>;
 }
 
-export const Popup: FC<Props> = ({ message }) => {
+export const Popup: FC<Props> = ({ message, checkToken }) => {
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        await chrome.storage.session.set({ token: null });
+        await checkToken();
+    }
+
     return (
         <Container>
             <Box textAlign="center">
@@ -15,7 +25,7 @@ export const Popup: FC<Props> = ({ message }) => {
             </Box>
 
             <Box mt={2} mb={2} textAlign="right">
-                <Button variant="text" color="warning">
+                <Button variant="text" color="warning" onClick={handleLogout}>
                     Logout
                 </Button>
             </Box>
