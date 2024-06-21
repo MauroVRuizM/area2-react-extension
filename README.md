@@ -4,3 +4,7 @@
 
 1. Rename file ```.env.template``` to ```.env```
 2. Provide firebase credentials
+3. Run in dev mode
+```
+yarn dev
+```
