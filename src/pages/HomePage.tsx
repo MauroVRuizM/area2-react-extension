@@ -5,7 +5,7 @@ import { Login } from '../components/Login';
 export const HomePage = () => {
 
   const [preMsg, setPreMsg] = useState("Loading ...");
-  const [canAccess, setCanAccess] = useState(false);
+  const [canAccess, setCanAccess] = useState(true);
 
   useEffect(() => {
     checkToken();
@@ -36,13 +36,12 @@ export const HomePage = () => {
     });
   }
 
-
   return (
     <>
       {
         canAccess
         ? (
-          <Popup message={preMsg} checkToken={checkToken}/>
+          <Popup message={preMsg} checkToken={checkToken} needDelay={!canAccess}/>
         )
         : (
           <Login checkToken={checkToken}/>

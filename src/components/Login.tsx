@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, useState } from "react";
-import { Container, Typography, TextField, Button, Box } from "@mui/material";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, AuthError } from 'firebase/auth';
+import { Container, Typography, TextField, Button, Box, Fade } from "@mui/material";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from "../firebase/config";
 
 interface Props {
@@ -108,66 +108,70 @@ export const Login: FC<Props> = ({ checkToken }) => {
     };
 
     return (
-        <Container maxWidth="xs">
-            <Box textAlign="center" mt={4}>
-                <Typography variant="h4">
-                    { isRegistering ? "Sign Up" : "Sign In to continue" }
-                </Typography>
-            </Box>
+        <>
+            <Fade in>
+                <Container maxWidth="xs">
+                    <Box textAlign="center" mt={4}>
+                        <Typography variant="h4">
+                            { isRegistering ? "Sign Up" : "Sign In to continue" }
+                        </Typography>
+                    </Box>
 
-            <Box mt={4}>
-                <TextField
-                    required
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    name="email"
-                    id="email"
-                    margin="normal"
-                    value={email}
-                    onChange={handleEmailChange}
-                    error={!!emailError}
-                    helperText={emailError}
-                />
-            </Box>
-            <Box mt={2}>
-                <TextField
-                    required
-                    fullWidth
-                    label="Password"
-                    type="password"
-                    name="password"
-                    id="password"
-                    margin="normal"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    error={!!passwordError}
-                    helperText={passwordError}
-                />
-            </Box>
-            <Box mt={4} textAlign="center">
-                <Button variant="contained" color="primary" onClick={handleSubmit}>
-                    { isRegistering ? "Sign Up" : "Sign In" }
-                </Button>
-            </Box>
+                    <Box mt={4}>
+                        <TextField
+                            required
+                            fullWidth
+                            label="Email"
+                            type="email"
+                            name="email"
+                            id="email"
+                            margin="normal"
+                            value={email}
+                            onChange={handleEmailChange}
+                            error={!!emailError}
+                            helperText={emailError}
+                        />
+                    </Box>
+                    <Box mt={2}>
+                        <TextField
+                            required
+                            fullWidth
+                            label="Password"
+                            type="password"
+                            name="password"
+                            id="password"
+                            margin="normal"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            error={!!passwordError}
+                            helperText={passwordError}
+                        />
+                    </Box>
+                    <Box mt={4} textAlign="center">
+                        <Button variant="contained" color="primary" onClick={handleSubmit}>
+                            { isRegistering ? "Sign Up" : "Sign In" }
+                        </Button>
+                    </Box>
 
-            <Box mt={2} textAlign="center">
-                <Typography color="error">
-                    { firebaseError }
-                </Typography>
-            </Box>
+                    <Box mt={2} textAlign="center">
+                        <Typography color="error">
+                            { firebaseError }
+                        </Typography>
+                    </Box>
 
-            <Box textAlign="center" mt={4}>
-                <Typography variant="h5">
-                    { isRegistering ? "I already have an account" : "Don't have an account?" }
-                </Typography>
-            </Box>
+                    <Box textAlign="center" mt={4}>
+                        <Typography variant="h5">
+                            { isRegistering ? "I already have an account" : "Don't have an account?" }
+                        </Typography>
+                    </Box>
 
-            <Box mt={2} textAlign="center">
-                <Button variant="outlined" color="secondary" onClick={handleChangeMode}>
-                    { isRegistering ? "Sign In" : "Sign Up" }
-                </Button>
-            </Box>
-        </Container>
+                    <Box mt={2} textAlign="center">
+                        <Button variant="outlined" color="secondary" onClick={handleChangeMode}>
+                            { isRegistering ? "Sign In" : "Sign Up" }
+                        </Button>
+                    </Box>
+                </Container>
+            </Fade>
+        </>
     );
 };

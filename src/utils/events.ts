@@ -98,9 +98,10 @@ const sendTypingData = debounce(() => {
 export const handleKeydown = (event: KeyboardEvent) => {
     if (!isTypingSessionActive) {
         isTypingSessionActive = true;
-        isMouseMovementSessionActive = true;
         typingData.startUnixTime = Date.now();
     }
+
+    if(!isMouseMovementSessionActive) {isMouseMovementSessionActive = true;}
 
     if (!keyPressStartTimes[event.key]) {
         keyPressStartTimes[event.key] = Date.now();
