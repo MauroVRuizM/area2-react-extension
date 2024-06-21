@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Typography } from '@mui/material';
 import { auth } from '../firebase/config';
 import { Popup } from '../components/Popup';
+import { Login } from '../components/Login';
 
 export const HomePage = () => {
 
@@ -43,7 +43,7 @@ export const HomePage = () => {
           <Popup message={preMsg}/>
         )
         : (
-          <Typography>No Aceses</Typography>
+          <Login/>
         )
       }
     </>
